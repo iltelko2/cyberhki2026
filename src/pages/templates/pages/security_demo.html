@@ -1,0 +1,15 @@
+<html>
+    <head>
+        <title>OWASP Security Flaws</title>
+    </head>
+    <body>
+        <h1>OWASP 2021 Security Flaws</h1>
+        <ul>
+            {% for flaw in flaws %}
+            <li><a href="{{ flaw.url }}">{{ flaw.name }}</a></li>
+            {% endfor %}
+        </ul>
+        <p><a href="/security/login/">Login demo</a></p>
+        <p><a href="/">Takaisin pääsivulle</a></p>
+    </body>
+</html>
