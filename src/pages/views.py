@@ -1,9 +1,6 @@
-import hashlib
-import hmac
-import os
-
+from django.contrib.auth import get_user_model
 from django.db import connection
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from .models import questions
@@ -113,14 +110,6 @@ def securityAdminDataView(request):
 def securityCryptoView(request):
 	api_key = request.GET.get('api_key', '')
 	
-	# FIX FOR INSECURE CRYPTOGRAPHIC STORAGE (#2):
-	# For real, get this from os.environ.get('API_KEY_HASH') or secure location like database
-	#stored_hash = hashlib.sha256(b'password').hexdigest()
-	#if not hmac.compare_digest(hashlib.sha256(api_key.encode()).hexdigest(), stored_hash):
-	#	return HttpResponse('Access denied')
-	#else:
-	#	return HttpResponse('API access granted.')
-	
 	if api_key == 'plain-text-secret':
 		return HttpResponse('API access granted.')
 	return HttpResponse('Access denied')
@@ -146,23 +135,25 @@ def securitySearchView(request):
 
 
 def securityLoginView(request):
+	# FLAW 4: Broken Authentication
+	#
+	# HOW TO FIX FLAW 4: authenticate against hash of the password stored
+	# user database, and create authenticated session:
+	# from django.contrib.auth import authenticate, login
+	# user = authenticate(request, username=username, password=password)
+	# if user is None:
+	#     return HttpResponse('Invalid credentials')
+	# login(request, user)
+	# return HttpResponse(f'Welcome, {user.username}!')
 	if request.method == 'POST':
 		username = request.POST.get('username', '')
 		password = request.POST.get('password', '')
-
-		# FIX FOR WEAK IDENTIFICATION AND AUTHENTICATION (#4):
-		# salt = b'salt-1234'
-		# Of course we dont make hash from plain text, this should
-		# be stored in a database (the hash, not the plain password)
-		# stored_hash = hashlib.pbkdf2_hmac('sha256', b'password', salt, 120000)
-		# if not secrets.compare_digest(hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 120000), stored_hash):
-		#     return HttpResponse('Invalid credentials')
-
-		if username == 'admin' and password == 'admin123':
-			request.session['username'] = username
-			request.session['is_authenticated'] = True
-			return HttpResponse(f'Welcome, {username}!')
-		return HttpResponse('Invalid credentials')
+		user = get_user_model().objects.filter(username=username).first()
+		if user is None or password != 'password':
+			return HttpResponse('Invalid credentials')
+		request.session['username'] = user.username
+		request.session['is_authenticated'] = True
+		return HttpResponse(f'Welcome, {user.username}!')
 	return render(request, 'pages/security_login.html')
 
 
@@ -170,8 +161,8 @@ def securityLoggingView(request):
 	username = request.GET.get('username', 'unknown')
 	if username.lower() == 'admin':
 		# FIX FOR SECURITY LOGGING AND MONITORING FAILURES (#5):
-		import logging
-		logger = logging.getLogger('security.audit')
-		logger.warning('Sensitive admin page viewed', extra={'username': username, 'remote_addr': request.META.get('REMOTE_ADDR', '')})
+		#import logging
+		#logger = logging.getLogger('security.audit')
+		#logger.warning('Sensitive admin page viewed', extra={'username': username, 'remote_addr': request.META.get('REMOTE_ADDR', '')})
 		return HttpResponse('Sensitive admin page (audited)')
 	return HttpResponse(f'Regular user {username} viewed a profile, no monitoring.')

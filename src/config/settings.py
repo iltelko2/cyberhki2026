@@ -50,6 +50,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# FLAW 2:
+# PROBLEMATIC SETTING:
+SESSION_COOKIE_HTTPONLY = False
+
+# HOW TO FIX:
+# SESSION_COOKIE_HTTPONLY = True
+
 ROOT_URLCONF = 'src.config.urls'
 
 TEMPLATES = [

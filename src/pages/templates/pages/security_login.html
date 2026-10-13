@@ -5,6 +5,7 @@
     </head>
     <body>
         <h1>Login Demo</h1>
+        <p>Use an account stored in the application's user database. This vulnerable demo checks the username but does not verify the password.</p>
         <form method="post">
             {% csrf_token %}
             <p>Username: <input type="text" name="username" /></p>
