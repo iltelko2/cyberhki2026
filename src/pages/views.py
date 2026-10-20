@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.http import HttpResponseForbidden
 
 from .models import questions
 
