@@ -135,19 +135,18 @@ def securitySearchView(request):
 
 
 def securityLoginView(request):
-	# FLAW 4: Broken Authentication
-	#
-	# HOW TO FIX FLAW 4: authenticate against hash of the password stored
-	# user database, and create authenticated session:
-	# from django.contrib.auth import authenticate, login
-	# user = authenticate(request, username=username, password=password)
-	# if user is None:
-	#     return HttpResponse('Invalid credentials')
-	# login(request, user)
-	# return HttpResponse(f'Welcome, {user.username}!')
 	if request.method == 'POST':
 		username = request.POST.get('username', '')
 		password = request.POST.get('password', '')
+		# FLAW 4 FIX: uncomment this block, then comment out the vulnerable
+		# username lookup and hard-coded password check below.
+		# from django.contrib.auth import authenticate, login
+		# user = authenticate(request, username=username, password=password)
+		# if user is None:
+		#     return HttpResponse('Invalid credentials')
+		# login(request, user)
+		# return HttpResponse(f'Welcome, {user.username}!')
+
 		user = get_user_model().objects.filter(username=username).first()
 		if user is None or password != 'password':
 			return HttpResponse('Invalid credentials')

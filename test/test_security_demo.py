@@ -15,10 +15,10 @@ class SecurityLoginTest(TestCase):
 		self.assertNotEqual(self.user.password, 'test-only-password')
 		self.assertTrue(self.user.check_password('test-only-password'))
 
-	def test_login_accepts_known_username_without_checking_password(self):
+	def test_login_accepts_hardcoded_password_without_checking_database_hash(self):
 		response = self.client.post(
 			'/security/login/',
-			{'username': 'demo-user', 'password': 'wrong-password'},
+			{'username': 'demo-user', 'password': 'password'},
 		)
 
 		self.assertContains(response, 'Welcome, demo-user!')
